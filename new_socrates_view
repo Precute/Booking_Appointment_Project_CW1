@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <link href='css/jquery-ui.css' rel='stylesheet'>
+    <link href='css/fullcalendar.css' rel='stylesheet'>
+    <link href='css/fullcalendar.print.css' media='print' rel='stylesheet'>
+    <link href='css/custom.css' rel='stylesheet'>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+
+    <script src='js/jquery.min.js'>
+    </script>
+    <script src='js/jquery-ui.js'>
+    </script>
+    <script src='js/jquery-ui-timepicker-addon.js'>
+    </script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src='js/moment.min.js'>
+    </script>
+    <script src='js/fullcalendar.min.js'>
+    </script>
+    <script type="text/javascript">
+$(document).ready(function() {
+$('#nav').load('nav.html');
+});
+</script>
+    <script>
+        $(document).ready(function() {
+            var modalForm = "";
+            // Get the modal
+            //var modal = document.getElementById('myModal');
+            // Get the <span> element that closes the modal
+            //var span = document.getElementsByClassName("close")[0];
+
+            // When the user clicks on <span> (x), close the modal
+           // span.onclick = function() {
+                //modal.style.display = "none";
+            //}
+
+            // When the user clicks anywhere outside of the modal, close it
+           // window.onclick = function(event) {
+                //if (event.target == modal) {
+                    // modal.style.display = "none";
+                //}
+            //}
+//
+            var date = new Date();
+            var d = date.getDate();
+            var m = date.getMonth();
+            var y = date.getFullYear();
+            var calendar = $('#calendar').fullCalendar({
+
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+
+                businessHours: {
+                // days of week. an array of zero-based day of week integers (0=Sunday)
+                start: '07:00', // a start time 7am 
+                end: '21:00',
+                dow: [ 1, 2, 3, 4, 5 ] // Monday - Friday 
+                },
+
+                defaultDate: '2017-05-07',
+                defaultView: 'agendaWeek',
+                editable: true,
+                minTime: '7:30',
+                maxTime: '20:30',
+
+                //eventLimit: true, // allow "more" link when too many events
+                events: "events.php",
+                allDaySlot: true,
+                selectable: true,
+                selectHelper: true,
+                eventAfterRender: function(event, element, view) {
+
+                    if (event.availability == 0) {
+                        //event.color = "#FFB347"; //Em andamento
+                        element.css('background-color', '#FF0000');
+                    } else if (event.availability >= 0) {
+                        //event.color = "#77DD77"; //Concluído OK
+                        element.css('background-color', '#77DD77');
+                    }
+                },
+            });
+
+        });
+    </script>
+    <style>
+        body {
+            margin: 40px 10px;
+            padding: 0;
+            font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+            font-size: 14px;
+        }
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+    </style>
+    <title></title>
+</head>
+
+<body>
+    <div id ='nav'></div>
+    <div id='calendar'></div>
+    <script type="text/javascript">
+    </script>
+    <!--div class="spanAlert">
+
+  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  
+    </div>
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+
+            <span class="close">x</span>
+        <div class="modal-form"></div>
+
+        </div>
+
+    
+
+    </div>
+
+</body>
+
+</html>

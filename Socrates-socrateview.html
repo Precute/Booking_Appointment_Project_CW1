@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+     <title> Socrates | Socrate View </title>
+    <link href='css/jquery-ui.css' rel='stylesheet'>
+    <link href='css/fullcalendar.css' rel='stylesheet'>
+    <link href='css/fullcalendar.print.css' media='print' rel='stylesheet'>
+    <link href='css/custom.css' rel='stylesheet'><!-- Latest compiled and minified CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href='css/jquery-ui-timepicker-addon.css' rel='stylesheet' type='text/css'><!-- Optional theme -->
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="css/modal.css" rel="stylesheet">
+    <script src='js/jquery.min.js'>
+    </script>
+    <script src='js/jquery-ui.js'>
+    </script>
+    <script src='js/jquery-ui-timepicker-addon.js'>
+    </script><!-- Latest compiled and minified JavaScript -->
+
+    <script src="js/bootstrap.min.js">
+    </script>
+    <script src='js/moment.min.js'>
+    </script>
+    <script src="js/jquery.validate.min.js"></script>
+    <script src='js/fullcalendar.min.js'>
+    </script>
+        <script src='js/socrates.js'>
+    </script>
+    <script>
+                                  $( function() {
+                                   $( "#menu" ).menu();
+                                 } );
+    </script>
+    <script type="text/javascript">
+                               $(document).ready(function() {
+                               $('#nav').load('nav.html');
+                               });
+    </script>
+    <script>
+                                      $(document).ready(function() {
+                                          var modalForm = "";
+                                          // Get the modal
+                                          var modal = document.getElementById('myModal');
+                                          // Get the <span> element that closes the modal
+                                          var span = document.getElementsByClassName("close")[0];
+
+                                          // When the user clicks on <span> (x), close the modal
+                                          span.onclick = function() {
+                                              modal.style.display = "none";
+                                          }
+
+                                          // When the user clicks anywhere outside of the modal, close it
+                                          window.onclick = function(event) {
+                                              if (event.target == modal) {
+                                                   modal.style.display = "none";
+                                              }
+                                          }
+
+                                          var date = new Date();
+                                          var d = date.getDate();
+                                          var m = date.getMonth();
+                                          var y = date.getFullYear();
+                                          var calendar = $('#calendar').fullCalendar({
+
+                                              header: {
+                                                  left: 'prev,next today',
+                                                  center: 'title',
+                                                  right: 'month,agendaWeek,agendaDay'
+                                              },
+
+                                              businessHours: {
+                                              // days of week. an array of zero-based day of week integers (0=Sunday)
+                                              start: '07:00', // a start time 7am 
+                                              end: '21:00',
+                                              dow: [ 1, 2, 3, 4, 5 ] // Monday - Friday 
+                                              },
+
+                                              defaultDate: '2017-05-07',
+                                              defaultView: 'agendaWeek',
+                                              editable: true,
+                                              minTime: '7:30',
+                                              maxTime: '20:30',
+
+                                              //eventLimit: true, // allow "more" link when too many events
+                                              events: "events.php",
+                                              allDaySlot: true,
+                                              selectable: true,
+                                              selectHelper: true,
+                                              select: function(start, end, allDay) {
+
+                                                  modalForm = '<form method="post" class="dark-matter"><h1>Add New Event</h1>';
+                                                  modalForm +='<label for="event-name">Event Name:<\/label> <select id="event-name"><option value="ethics">Ethics<\/option><option value="moral theory">Moral Theory<\/option><option value="metaphysics">Metaphysics<\/option><option value="baking">baking<\/option><\/select><\/br><br>';
+
+                                              modalForm += '<label for="event-type">Event Type:<\/label> <select id="event-type"><option value="appointment">One to one Appointment<\/option><option value="group">Small Group Session<\/option><\/select><\/br><br>';
+                                              modalForm += '<label for="start-date">Start Date and Time:<\/label><input type="text" id="start-date"> <label for="end-date">End Date and Time:<\/label> <input type="text" id="end-date"><\/br><br><input type="submit" value="Submit" class="button" id="submit"/><\/form>';
+                                             start = moment(start, "YYYY-MM-DDTHH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
+                                             end = moment(end, "YYYY-MM-DDTHH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
+                                              console.log("start is", start);
+                                              console.log("end is", end);
+                                              $('.modal-form').on('focus', "#start-date", function() {
+                                                  $(this).datetimepicker({
+                                                      controlType: 'select',
+                                                      dateFormat: 'dd/mm/yy',
+                                                      timeFormat: 'HH:mm:ss',
+                                                      defaultValue: start,
+                                                      showSecond:false,
+                                                      showMillisec:false,
+                                                      showMicrosec:false
+                                                  });
+                                              });
+                                              $('.modal-form').on('focus', "#end-date", function() {
+                                                  $(this).datetimepicker({
+                                                      controlType: 'select',
+                                                      dateFormat: 'dd/mm/yy',
+                                                      timeFormat: 'HH:mm:ss',
+                                                      defaultValue: end,
+                                                      showSecond:false,
+                                                      showMillisec:false,
+                                                      showMicrosec:false
+
+                                                  });
+                                              });
+
+                                              $(".modal-form").html(modalForm);
+                                              $("#start-date").val(start);
+                                              $("#end-date").val(end);
+                                              
+
+                                              modal.style.display = "block";
+
+                                              document.getElementById("submit").addEventListener("click", submit, true);
+
+                                                  function submit () {
+
+                                                  var title = $("#event-name option:selected").text();
+                                                  var type = document.getElementById('event-type');
+                                                  var typeSelected = type.options[type.selectedIndex].value;
+                                                  var availability;
+                                                  if (typeSelected == "group") {
+                                                      availability = 3;
+                                                  } else if (typeSelected == "appointment") {
+                                                      availability = 1;
+                                                  }
+
+                                                  if (title) {
+                                                    end = moment(end, "DD/MM/YYYY HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
+                                                    start = moment(start, "DD/MM/YYYY HH:mm:ss").format("YYYY-MM-DD HH:mm:ss");
+                                                      $.ajax({
+                                                          url: 'add_events.php',
+                                                          data: 'title=' + title + '&start=' + start + '&end=' + end + '&apptype=' + typeSelected + '&availability=' + availability,
+                                                          type: "POST",
+                                                          success: function(json) {
+                                                              alert('OK');
+                                                          }
+                                                      });
+                                                      calendar.fullCalendar('renderEvent', {
+                                                              title: title,
+                                                              start: start,
+                                                              end: end,
+                                                              apptype: typeSelected,
+                                                              availability: availability, 
+                                                              allDay: false
+                                                          },
+                                                          true // make the event "stick"
+                                                      );
+                                                  }
+
+                                                  calendar.fullCalendar('unselect');
+                                                  }
+                                              },
+
+
+                                              eventDrop: function(event, delta, revertFunc) {
+                                                  var id = event.id;
+                                                  var start = moment(event.start).format('YYYY-MM-DD HH:mm:ss');
+                                                  var end = moment(event.end).format('YYYY-MM-DD HH:mm:ss');
+
+                                                  alert(event.title + " was dropped on " + event.start.format());
+
+                                                  $.ajax({
+                                                      url: 'update_events.php',
+                                                      data: 'id=' + id + '&start=' + start + '&end=' + end,
+                                                      type: "POST",
+                                                      success: function(json) {
+                                                          //alert('OK');
+                                                      }
+                                                  });
+
+                                                  if (!confirm("Are you sure about this change?")) {
+                                                      revertFunc();
+                                                  }
+
+                                              },
+
+                                             eventRender: function(event, element) { 
+                                                element.find('.fc-title').append("<br/>" + event.availability); 
+
+
+                                               },
+
+                                            eventRender: function(event, element) { 
+                                                var eventid = event.id;
+                                                $.post("booking.php", {
+                                        appid: eventid,
+                               
+                            },
+                          function() {
+                                console.log("Created." );
+                            });
+                                                 
+                                               },
+                                              eventResize: function(event, delta, revertFunc) {
+                                                  var id = event.id;
+                                                  var start = moment(event.start).format('YYYY-MM-DD HH:mm:ss');
+                                                  var end = moment(event.end).format('YYYY-MM-DD HH:mm:ss');
+
+                                                  $.ajax({
+                                                      url: 'update_events.php',
+                                                      data: 'id=' + id + '&start=' + start + '&end=' + end,
+                                                      type: "POST",
+                                                      success: function(json) {
+                                                          alert('OK');
+                                                      }
+                                                  });
+
+                                                  if (!confirm("Are you sure about this change?")) {
+                                                      revertFunc();
+                                                  }
+
+                                              },
+                                              eventAfterRender: function(event, element, view) {
+
+                                                  if (event.availability == 0) {
+                                                      //event.color = "#FFB347"; //Em andamento
+                                                      element.css('background-color', '#FF0000');
+                                                  } else if (event.availability >= 0) {
+                                                      //event.color = "#77DD77"; //Concluído OK
+                                                      element.css('background-color', '#77DD77');
+                                                  }
+                                              },
+                                          
+                                          });
+
+                                      });
+
+
+
+      
+    </script>
+    <style>
+     body {
+           margin: 40px 10px;
+           padding: 0;
+           font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+           font-size: 14px;
+          }
+      #calendar {
+           max-width: 900px;
+           margin: 0 auto;
+                }
+       .fc-clear {
+           clear: none !important;
+           }
+  @media 
+  only screen and (max-width: 760px),
+  (min-device-width: 768px) and (max-device-width: 1024px)  {
+  
+    /* Force table to not be like tables anymore */
+    table, thead, tbody, th, td, tr { 
+      display: block; 
+    }
+    
+    /* Hide table headers (but not display: none;, for accessibility) */
+    thead tr { 
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    
+    tr { border: 1px solid #ccc; }
+    
+    td { 
+      /* Behave  like a "row" */
+      border: none;
+      border-bottom: 1px solid #eee; 
+      position: relative;
+      padding-left: 50%; 
+    }
+    
+    td:before { 
+      /* Now like a table header */
+      position: absolute;
+      /* Top/left values mimic padding */
+      top: 6px;
+      left: 6px;
+      width: 45%; 
+      padding-right: 10px; 
+      white-space: nowrap;
+    }
+    
+    /*
+    Label the data
+    */
+    td:nth-of-type(1):before { content: "First Name"; }
+    td:nth-of-type(2):before { content: "Last Name"; }
+    td:nth-of-type(3):before { content: "Job Title"; }
+    td:nth-of-type(4):before { content: "Favorite Color"; }
+    td:nth-of-type(5):before { content: "Wars of Trek?"; }
+    td:nth-of-type(6):before { content: "Porn Name"; }
+    td:nth-of-type(7):before { content: "Date of Birth"; }
+    td:nth-of-type(8):before { content: "Dream Vacation City"; }
+    td:nth-of-type(9):before { content: "GPA"; }
+    td:nth-of-type(10):before { content: "Arbitrary Data"; }
+  }
+  
+  /* Smartphones (portrait and landscape) ----------- */
+  @media only screen
+  and (min-device-width : 320px)
+  and (max-device-width : 480px) {
+    body { 
+      padding: 0; 
+      margin: 0; 
+      width: 320px; }
+    }
+  
+  /* iPads (portrait and landscape) ----------- */
+  @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    body { 
+      width: 495px; 
+    }
+  }
+  .btn1 {
+    width:78%;
+  }
+    </style>
+
+    <title>
+    </title>
+</head>
+
+<body>
+       <!-- The Modal -->
+    <div class="modal" id="myModal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">x</span>
+            <div class="modal-form"></div>
+        </div>
+    </div>
+   
+    <div id='nav'></div>
+
+
+    <div style="float:left; width: 160px; padding-top:20px;">
+        <ul id="menu">
+            <li>
+                <div>
+                    <a href="#"><span class="glyphicon glyphicon-education" style="margin-right: 0.5em"></span>Students</a>
+                </div>
+
+
+                <ul>
+                    <li onclick="viewAllStudent()">
+                        <div>
+                            <span class="glyphicon glyphicon-search" style="margin-right: 0.5em"></span>View Student Records
+                        </div>
+                    </li>
+
+
+                    <li>
+                        <div onclick="addStudent()">
+                            <span class="glyphicon glyphicon-plus" style="margin-right: 0.5em"></span>Add New Student
+                        </div>
+                    </li>
+                </ul>
+            </li>
+
+
+            <li>
+                <div>
+                    <span class="glyphicon glyphicon-calendar" style="margin-right: 0.5em"></span>Bookings
+                </div>
+
+
+                <ul>
+                    <li>
+                        <div onclick="">
+                            <span class="glyphicon glyphicon-plus" style="margin-right: 0.5em"></span>Make Student Booking
+                        </div>
+                    </li>
+
+
+                    <li>
+                        <div>
+                            <span class="glyphicon glyphicon-search" style="margin-right: 0.5em"></span>View Event Bookings
+                        </div>
+                    </li>
+                </ul>
+            </li>
+
+
+            <li>
+                <div>
+                    <span class="glyphicon glyphicon-calendar" style="margin-right: 0.5em"></span>Events
+                </div>
+
+
+                <ul>
+                    <li>
+                        <div onclick="addNewEventModal()">
+                            <span class="glyphicon glyphicon-plus" style="margin-right: 0.5em"></span>Add New Event
+                        </div>
+                    </li>
+
+
+                    <li>
+                        <div>
+                            <span class="glyphicon glyphicon-search" style="margin-right: 0.5em"></span>View Calender
+                        </div>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <div>
+                    <span class="glyphicon glyphicon-log-in" style="margin-right: 0.5em"></span>Login
+                </div>
+            </li>
+
+            <li>
+                <div>
+                    <span class="glyphicon glyphicon-log-out" style="margin-right: 0.5em"></span>Logout
+                </div>
+            </li>
+        </ul>
+        <ul>
+          <li>
+         <div>
+                <span class="glyphicon glyphicon-eye-open" style="margin-right: 0.5em"></span> Note:
+        </div>
+      </li>
+      <div class="btn-group">
+    <button type="button"  class="btn1 btn-danger" custom>Unavailable</button>
+    <button type="button" class="btn1 btn-success" custom>Available </button>
+</div>
+       </ul>
+
+  
+    </div>
+
+
+
+    <div style="margin-left: 160px;">
+        <div id='calendar'></div>
+    </div>
+
+</body>
+</html>
